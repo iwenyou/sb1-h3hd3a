@@ -1,4 +1,4 @@
-const request = require('request');
+const axios = require('axios');
 const { BASE_URL, AK, SK } = require('../config');
 
 function validateEnvironment() {
@@ -28,18 +28,25 @@ async function getAccessToken() {
 
   const options = {
     method: 'POST',
-    url: `${BASE_URL}/oauth/2.0/token?grant_type=client_credentials&client_id=${AK}&client_secret=${SK}`,
+    url: `${BASE_URL}/oauth/2.0/token`,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    params: {
+      grant_type: 'client_credentials',
+      client_id: AK,
+      client_secret: SK
+    }
   };
 
-  return new Promise((resolve, reject) => {
-    request(options, (error, response) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(JSON.parse(response.body).access_token);
-      }
-    });
-  });
+  try {
+    const response = await axios(options);
+    return response.data.access_token;
+  } catch (error) {
+    console.error('Error getting access token:', error.response?.data || error.message);
+    throw error;
+  }
 }
 
 module.exports = { getAccessToken, validateEnvironment };
