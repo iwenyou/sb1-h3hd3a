@@ -30,8 +30,7 @@ async function getAccessToken() {
     method: 'POST',
     url: `${BASE_URL}/oauth/2.0/token`,
     headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      'Content-Type': 'application/x-www-form-urlencoded'
     },
     params: {
       grant_type: 'client_credentials',
@@ -42,6 +41,9 @@ async function getAccessToken() {
 
   try {
     const response = await axios(options);
+    if (!response.data.access_token) {
+      throw new Error('No access token in response');
+    }
     return response.data.access_token;
   } catch (error) {
     console.error('Error getting access token:', error.response?.data || error.message);
